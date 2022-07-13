@@ -15,6 +15,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(routes)
 
 app.listen(PORT, () => {
-  console.log(`Server on http://localhost:${PORT}`);
+  console.log(`Server on port: ${PORT}`);
 });
 
