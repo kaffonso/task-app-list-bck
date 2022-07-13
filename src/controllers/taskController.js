@@ -12,32 +12,33 @@ module.exports = {
 
   async getOne(req, res, next) {
     const { id } = req.params;
-    pool.query(`Select * FROM public.task WHERE id = ${id}`, (err, response) => {
-      if (err) return next(err)
+    pool.query(
+      `Select * FROM public.task WHERE id = ${id}`,
+      (err, response) => {
+        if (err) return next(err);
 
-      if (response.rowCount === 0) {
-        return res.status(400).json({ error: "ID does not exist" });
+        if (response.rowCount === 0) {
+          return res.status(400).json({ error: "ID does not exist" });
+        }
+
+        return res.status(200).json(response.rows);
       }
-
-      return res.status(200).json(response.rows)
-    })
+    );
   },
 
   async create(req, res, next) {
-    const { title, description } = req.body;
+    const { description } = req.body;
 
-    if (!title || !description) {
+    if (!description) {
       return res.status(400).json({ error: "All fields must be filled!" });
     }
 
     pool.query(
-      `INSERT INTO public.task (title, description, completed, "createdAt", "updatedAt") values` +
-        `('${title}','${description}', DEFAULT, CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)`,
+      `INSERT INTO public.task (description, completed, "createdAt", "updatedAt") values` +
+        `('${description}', DEFAULT, CURRENT_TIMESTAMP,CURRENT_TIMESTAMP) RETURNING *`,
       (err, response) => {
         if (err) return next(err);
-        res
-          .status(201)
-          .json([{ ok: "Task Created Sucessfully" }, { title, description }]);
+        res.status(201).json(response.rows);
       }
     );
   },
@@ -51,13 +52,52 @@ module.exports = {
       return res.status(400).json({ error: "All fields must be filled!" });
     }
 
-    pool.query(`DELETE FROM public.task WHERE id = ${id} RETURNING *` , (err, response) => {
-      if (err) return next(err);
+    pool.query(
+      `DELETE FROM public.task WHERE id = ${id} RETURNING *`,
+      (err, response) => {
+        if (err) return next(err);
+
+        if (response.rowCount === 0) {
+          return res.status(400).json({ error: "ID does not exist" });
+        }
+        // console.log(response.rowCount)
+        return res.status(200).json(response.rows);
+      }
+    );
+  },
+
+  async update(req, res, next) {
+    const { id } = req.params;
+    const { description } = req.body;
+
+    if (!description) {
+      return res.status(400).json({ error: "All fields must be filled!" });
+    }
+
+    pool.query(
+      `UPDATE public.task SET description='${description}', "updatedAt" = CURRENT_TIMESTAMP where task.id = ${id} RETURNING *`,
+      (err, response) => {
+        if (err) return next(err);
+
+        if (response.rowCount === 0) {
+          return res.status(400).json({ error: "ID does not exist" });
+        }
+
+        return res.status(200).json(response.rows);
+      }
+    );
+  },
+
+  async complete(req, res, next) {
+    const { id } = req.params;
+
+    pool.query(`UPDATE public.task SET completed='true' WHERE id = ${id} RETURNING *`, (err, response) => {
+      if (err) return next(err)
 
       if (response.rowCount === 0) {
         return res.status(400).json({ error: "ID does not exist" });
       }
-      // console.log(response.rowCount)
+
       return res.status(200).json(response.rows);
     });
   },
