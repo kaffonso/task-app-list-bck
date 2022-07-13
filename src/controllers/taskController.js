@@ -26,6 +26,21 @@ module.exports = {
     );
   },
 
+  async getCompleted(req, res, next) {
+    pool.query(
+      `Select * FROM public.task WHERE completed = true`,
+      (err, response) => {
+        if (err) return next(err);
+
+        if (response.rowCount === 0) {
+          return res.status(400).json({ error: "No completed task" });
+        }
+
+        return res.status(200).json(response.rows);
+      }
+    );
+  },
+
   async create(req, res, next) {
     const { description } = req.body;
 
