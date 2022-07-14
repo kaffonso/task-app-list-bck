@@ -54,7 +54,8 @@ module.exports = {
   async create(req, res, next) {
     const { description } = req.body;
 
-    if (!description) { // verify if fieled description is filled
+    if (!description) {
+      // verify if fieled description is filled
       return res.status(400).json({ error: "Fields must be filled!" });
     }
 
@@ -114,11 +115,12 @@ module.exports = {
   },
 
   // change completed status of one taskk
-  async complete(req, res, next) {
+  async changeStatus(req, res, next) {
     const { id } = req.params;
+    let status, completed;
 
     pool.query(
-      `UPDATE public.task SET completed='true' WHERE id = ${id} RETURNING *`,
+      `select completed from public.task WHERE id = ${id}`,
       (err, response) => {
         if (err) return next(err);
 
@@ -127,7 +129,23 @@ module.exports = {
           return res.status(400).json({ error: "ID does not exist" });
         }
 
-        return res.status(200).json(response.rows);
+        status = response.rows[0].completed; // get the status of the actual task
+
+        if (status === true) {
+          // verify if its true it will change it to false and vice-versa
+          completed = false;
+
+        } else 
+          completed = true;
+
+        pool.query(
+          `UPDATE public.task SET completed='${completed}' WHERE id = ${id} RETURNING *`,
+          (err, response) => {
+            if (err) return next(err);
+
+            return res.status(200).json(response.rows);
+          }
+        );
       }
     );
   },
