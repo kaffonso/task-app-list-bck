@@ -8,6 +8,7 @@ const taskController = require('../controllers/taskController')
 routes.get("/tasks", taskController.getAll);
 routes.get("/task/:id", taskController.getOne);
 routes.get("/tasks/completed", taskController.getCompleted)
+routes.get("/tasks/uncompleted", taskController.getUncompleted)
 
 routes.post("/task", taskController.create);
 
