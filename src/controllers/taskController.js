@@ -97,6 +97,7 @@ module.exports = {
     );
   },
 
+  // delete all tasks
   async deleteAll(req, res, next) {
     pool.query(
       `DELETE FROM public.task`,
