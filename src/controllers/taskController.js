@@ -40,11 +40,6 @@ module.exports = {
       (err, response) => {
         if (err) return next(err);
 
-        if (response.rowCount === 0) {
-          // verifiy if the row count is 0, meaning it returned nothing
-          return res.status(400).json({ error: "No completed task" });
-        }
-
         return res.status(200).json(response.rows);
       }
     );
@@ -56,11 +51,6 @@ module.exports = {
       `Select * FROM public.task WHERE completed = false`,
       (err, response) => {
         if (err) return next(err);
-
-        if (response.rowCount === 0) {
-          // verifiy if the row count is 0, meaning it returned nothing
-          return res.status(400).json({ error: "No completed task" });
-        }
 
         return res.status(200).json(response.rows);
       }
@@ -102,6 +92,17 @@ module.exports = {
           return res.status(400).json({ error: "ID does not exist" });
         }
         // console.log(response.rowCount)
+        return res.status(200).json(response.rows);
+      }
+    );
+  },
+
+  async deleteAll(req, res, next) {
+    pool.query(
+      `DELETE FROM public.task`,
+      (err, response) => {
+        if (err) return next(err);
+
         return res.status(200).json(response.rows);
       }
     );
@@ -169,8 +170,3 @@ module.exports = {
 
 };
 
-// function verifyRowCount(response, res) {
-//   if (response.rowCount === 0) {
-//     return res.status(400).json({ error: "ID does not exist" });
-//   }
-// }
