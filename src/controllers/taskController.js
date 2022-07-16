@@ -158,7 +158,7 @@ module.exports = {
           completed = true;
 
         pool.query(
-          `UPDATE public.task SET completed='${completed}' WHERE id = ${id} RETURNING *`,
+          `UPDATE public.task SET completed='${completed}', "updatedAt"=CURRENT_TIMESTAMP WHERE id = ${id} RETURNING *`,
           (err, response) => {
             if (err) return next(err);
 
