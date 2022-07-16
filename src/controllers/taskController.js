@@ -117,6 +117,9 @@ module.exports = {
     if (!description) {
       return res.status(400).json({ error: "All fields must be filled!" });
     }
+    if (description === ""){
+      return res.status(400).json({ error: "Descriprion required!" });
+    }
 
     pool.query(
       `UPDATE public.task SET description='${description}', "updatedAt" = CURRENT_TIMESTAMP where task.id = ${id} RETURNING *`,
