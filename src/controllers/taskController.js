@@ -61,14 +61,14 @@ module.exports = {
   async create(req, res, next) {
     const { description } = req.body;
 
-    if (!description) {
-      // verify if fieled description is filled
+    if (!description || description.trim() === "") {
+      // verify if field description is filled
       return res.status(400).json({ error: "Fields must be filled!" });
     }
 
     pool.query(
       `INSERT INTO public.task (description, completed, "createdAt", "updatedAt") values` +
-        `('${description}', DEFAULT, CURRENT_TIMESTAMP,CURRENT_TIMESTAMP) RETURNING *`,
+      `('${description}', DEFAULT, CURRENT_TIMESTAMP,CURRENT_TIMESTAMP) RETURNING *`,
       (err, response) => {
         if (err) return next(err);
         res.status(201).json(response.rows);
@@ -79,8 +79,6 @@ module.exports = {
   // delete one task by id
   async delete(req, res, next) {
     const { id } = req.params;
-
-    console.log(id);
 
     pool.query(
       `DELETE FROM public.task WHERE id = ${id} RETURNING *`,
@@ -114,11 +112,9 @@ module.exports = {
     const { id } = req.params;
     const { description } = req.body;
 
-    if (!description) {
-      return res.status(400).json({ error: "All fields must be filled!" });
-    }
-    if (description === ""){
-      return res.status(400).json({ error: "Descriprion required!" });
+    if (!description || description.trim() === "") {
+      // verify if field description is filled
+      return res.status(400).json({ error: "Fields must be filled!" });
     }
 
     pool.query(
@@ -157,7 +153,7 @@ module.exports = {
           // verify if its true it will change it to false and vice-versa
           completed = false;
 
-        } else 
+        } else
           completed = true;
 
         pool.query(
@@ -171,6 +167,5 @@ module.exports = {
       }
     );
   },
-
 };
 
